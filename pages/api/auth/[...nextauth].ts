@@ -1,7 +1,8 @@
 import NextAuth from 'next-auth';
+import { getToken } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 
-import { users } from 'common/routes/api';
+import { USERS } from 'common/routes/api';
 import type { User } from 'common/types/users';
 import { fetch } from 'lib/fetch';
 
@@ -17,8 +18,8 @@ export default NextAuth({
         const { login, password } = creds || {};
 
         try {
-          const { data } = await fetch.post(users.auth.url, { login, password });
-          const { data: user } = await fetch.get<User>(users.me.url, {
+          const { data } = await fetch.post(USERS.AUTH.URL, { login, password });
+          const { data: user } = await fetch.get<User>(USERS.ME.URL, {
             headers: { 'user-jwt': data.user_jwt },
           });
 
@@ -29,9 +30,38 @@ export default NextAuth({
       },
     }),
   ],
-  callbacks: {},
+  callbacks: {
+    jwt: async ({ token, user }) => {
+      if (user) {
+        const { jwt, ...rest } = user;
+
+        token.jwt = jwt;
+        token.user = rest;
+      }
+
+      return token;
+    },
+    session: async ({ session, token }) => {
+      session.user = {
+        ...session.user,
+        ...(token.user as Record<string, any>),
+      };
+
+      session.jwt = token.jwt as string;
+
+      return session;
+    },
+  },
   pages: {
     signIn: '/',
     signOut: '/login',
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60,
+    updateAge: 4 * 60 * 60,
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60,
   },
 });

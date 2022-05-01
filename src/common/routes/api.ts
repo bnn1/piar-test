@@ -1,18 +1,18 @@
-export { stations, users };
+export { STATIONS, USERS };
 
-const users = {
-  list: { url: '/users', method: 'GET' },
-  create: { url: '/users', method: 'POST' },
-  me: { url: '/users/me', method: 'GET' },
-  getUser: { url: (id: number) => `/users/${id}`, method: 'GET' },
-  delUser: { url: (id: number) => `/users/${id}`, method: 'DELETE' },
-  updUser: { url: (id: number) => `/users/${id}`, method: 'PATCH' },
-  auth: { url: '/users/auth', method: 'POST' },
+const USERS = {
+  LIST: { URL: '/users', METHOD: 'GET' },
+  CREATE: { URL: '/users', METHOD: 'POST' },
+  ME: { URL: '/users/me', METHOD: 'GET' },
+  GET: { URL: (id: number) => `/users/${id}`, METHOD: 'GET' },
+  DELETE: { URL: (id: number) => `/users/${id}`, METHOD: 'DELETE' },
+  UPDATE: { URL: (id: number) => `/users/${id}`, METHOD: 'PATCH' },
+  AUTH: { URL: '/users/auth', METHOD: 'POST' },
 };
-const stations = {
-  list: { url: '/stations', method: 'GET' },
-  create: { url: '/stations', method: 'POST' },
-  getStation: { url: (id: number) => `/stations/${id}`, method: 'GET' },
-  delStation: { url: (id: number) => `/stations/${id}`, method: 'DELETE' },
-  updStation: { url: (id: number) => `/stations/${id}`, method: 'PATCH' },
+const STATIONS = {
+  LIST: { URL: '/stations', METHOD: 'GET' },
+  CREATE: { URL: '/stations', METHOD: 'POST' },
+  GET: { URL: (id: number) => `/stations/${id}`, METHOD: 'GET' },
+  DELETE: { URL: (id: number) => `/stations/${id}`, METHOD: 'DELETE' },
+  UPDATE: { URL: (id: number) => `/stations/${id}`, METHOD: 'PATCH' },
 };

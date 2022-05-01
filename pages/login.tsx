@@ -38,8 +38,6 @@ function LoginPage() {
     });
   };
 
-  console.log(router);
-
   useEffect(() => {
     if (error) {
       const timerId = setTimeout(() => setError(false), 1500);
@@ -73,50 +71,44 @@ function LoginPage() {
         borderRadius={2}
         sx={{ p: 15 }}
         position={'relative'}
+        rowGap={5}
       >
-        {({ register }) => (
-          <Stack rowGap={4}>
-            <Typography
-              variant={'h1'}
-              textAlign={'center'}
-              fontSize={'3rem'}
-            >
-              Вход
-            </Typography>
-            <Input
-              label={'Логин'}
-              name={'login'}
-              register={register}
-              options={{ required: true, min: 6 }}
-            />
-            <Input
-              label={'Пароль'}
-              name={'password'}
-              type={'password'}
-              register={register}
-              options={{ required: true, min: 6 }}
-            />
-            <Stack rowGap={4}>
-              <LoadingButton
-                variant={'contained'}
-                color={'primary'}
-                type={'submit'}
-                loading={loading}
-                loadingIndicator={'Проверяем...'}
-                startIcon={loading ? <SaveIcon /> : undefined}
-                fullWidth
-              >
-                Войти
-              </LoadingButton>
-              <Link
-                href={PAGE_APP_REGISTER}
-                passHref
-              >
-                <Button>Регистрация</Button>
-              </Link>
-            </Stack>
-          </Stack>
-        )}
+        <Typography
+          variant={'h1'}
+          textAlign={'center'}
+          fontSize={'3rem'}
+        >
+          Вход
+        </Typography>
+        <Input
+          label={'Логин'}
+          name={'login'}
+          options={{ required: { value: true, message: 'Это обязательное поле' } }}
+        />
+        <Input
+          label={'Пароль'}
+          name={'password'}
+          type={'password'}
+          options={{ required: { value: true, message: 'Это обязательное поле' } }}
+        />
+        <Stack rowGap={4}>
+          <LoadingButton
+            variant={'contained'}
+            color={'primary'}
+            type={'submit'}
+            loading={loading}
+            loadingIndicator={'Проверяем...'}
+            fullWidth
+          >
+            Войти
+          </LoadingButton>
+          <Link
+            href={PAGE_APP_REGISTER}
+            passHref
+          >
+            <Button>Регистрация</Button>
+          </Link>
+        </Stack>
       </Form>
       <Slide
         in={error}

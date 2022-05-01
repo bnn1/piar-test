@@ -4,7 +4,7 @@ import { InputProps, SelectProps } from '@mui/material';
 
 export type FormComponentProps<T, I> = I & {
   name: Path<T>;
-  register: UseFormRegister<T>;
+  register?: UseFormRegister<T>;
   label: string;
   error?: FieldError;
   options?: RegisterOptions<T>;

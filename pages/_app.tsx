@@ -7,7 +7,9 @@ import { memo, ReactElement, ReactNode, useEffect } from 'react';
 
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 
+import { Header } from 'layouts/Header';
 import { Main } from 'layouts/Main';
+import { useStore } from 'lib/store';
 
 import '@fontsource/roboto/latin-400.css';
 import '@fontsource/roboto/latin-500.css';
@@ -31,18 +33,35 @@ function App(props: AppPropsWithLayout) {
     pageProps: { session, ...pageProps },
   } = props;
 
+  const retrieveUsers = useStore((state) => state.retrieveUsers);
+  const retrieveStations = useStore((state) => state.retrieveStations);
+
   const getLayout =
     Component.getLayout ??
     ((page) => (
       <>
-        {/* <Header /> */}
+        <Header />
         <Main>{page}</Main>
         {/* <Footer /> */}
       </>
     ));
 
+  useEffect(() => {
+    if (session && session.jwt) {
+      console.log(session);
+
+      const { jwt } = session;
+
+      retrieveStations(jwt);
+      retrieveUsers(jwt);
+    }
+  }, [session, retrieveStations, retrieveUsers]);
+
   return (
-    <SessionProvider session={session}>
+    <SessionProvider
+      session={session}
+      refetchInterval={0}
+    >
       <ThemeProvider theme={createTheme({ palette: { mode: 'dark' }, spacing: 4 })}>
         <CssBaseline />
         {getLayout(<Component {...pageProps} />)}

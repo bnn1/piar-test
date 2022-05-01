@@ -1,6 +1,7 @@
 import { Children, createElement, HTMLAttributes, ReactElement, ReactNode } from 'react';
 import {
   DefaultValues,
+  FieldError,
   RegisterOptions,
   SubmitHandler,
   useForm,
@@ -10,17 +11,25 @@ import {
 
 import { Stack, StackProps } from '@mui/material';
 
+import { InputProps } from './components/Input';
+
 export { Form };
 
 type FormProps<T> = Omit<StackProps, 'children'> &
   Omit<HTMLAttributes<HTMLFormElement>, 'children'> & {
     defaultValues?: DefaultValues<T>;
     onSubmit: SubmitHandler<T>;
-    children: ReactElement | (({ register }: Pick<UseFormReturn<T>, 'register'>) => ReactNode);
+    children:
+      | ReactElement<InputProps<T>>[]
+      | (({ register }: Pick<UseFormReturn<T>, 'register'>) => ReactNode);
   };
 
 const Form = <T,>({ children, onSubmit, defaultValues, ...rest }: FormProps<T>) => {
-  const { handleSubmit, register } = useForm({ defaultValues });
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({ defaultValues });
 
   return (
     <Stack
@@ -30,14 +39,17 @@ const Form = <T,>({ children, onSubmit, defaultValues, ...rest }: FormProps<T>) 
     >
       {typeof children === 'function'
         ? children({ register })
-        : Children.map(children, (child: ReactElement) => {
+        : Children.map(children, (child: ReactElement<InputProps<T>>) => {
             const { type, props } = child;
+
+            console.log('CHILD:', child);
 
             return props?.name
               ? createElement(type, {
                   ...{
                     ...props,
-                    ...register(props.name),
+                    register,
+                    error: errors[props.name],
                     key: props.name,
                   },
                 })
