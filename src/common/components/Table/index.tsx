@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {
+  Box,
+  Button,
   IconButton,
   Paper,
   Table as MuiTable,
@@ -11,29 +13,29 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
 
 import { CreateStation, CreateUser, EditableFields, Station, User } from 'common/types/users';
 import { ConfirmationDialog } from 'components/ConfirmationDialog';
-import { EditDialog } from 'components/EditDialog';
+import { Dialog } from 'components/Dialog';
 import { Input } from 'components/Form/components/Input';
+import { Modal } from 'components/Modal';
+import { useEditableFields } from 'hooks/useEditableFields';
 
 import { TableProps } from './table.types';
 
 export { Table };
 
-type EditFields = {
-  name: EditableFields;
-  label: string;
-  props?: { multiline?: boolean };
-};
-
 const Table = (props: TableProps) => {
   const { columns, rows, tableName, onDelete, onEdit, slice = rows.length } = props;
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [editableFields, setEditableFields] = useState<EditFields[]>([]);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDetails, setShowDetails] = useState<{
+    open: boolean;
+    item: null | User | Station;
+  }>({ open: false, item: null });
   const [selectedItem, setSelectedItem] = useState<{
     name: string;
     id: number | null;
@@ -43,31 +45,22 @@ const Table = (props: TableProps) => {
     id: null,
     item: null,
   });
+
+  const editableFields = useEditableFields(tableName === 'Пользователи' ? 'user' : 'station');
+
   const selectUser = (item: typeof selectedItem, cb: any) => {
     setSelectedItem(item);
     cb();
   };
 
-  useEffect(() => {
-    if (tableName === 'Пользователи') {
-      setEditableFields([
-        { name: 'name', label: 'Имя' },
-        { name: 'login', label: 'Логин' },
-        { name: 'password', label: 'Пароль' },
-        { name: 'comment', label: 'Комментарий', props: { multiline: true } },
-      ]);
-    }
-    if (tableName === 'Станции') {
-      setEditableFields([
-        { name: 'name', label: 'Имя' },
-        { name: 'comment', label: 'Комментарий', props: { multiline: true } },
-      ]);
-    }
-  }, [tableName]);
+  const handleShowDetails = (item: User | Station) => {
+    console.log('DETAILS:', item);
+    setShowDetails({ open: true, item });
+  };
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <TableContainer sx={{ maxHeight: { xs: 440, lg: 'unset' } }}>
         <MuiTable
           stickyHeader
           aria-label="sticky table"
@@ -104,6 +97,7 @@ const Table = (props: TableProps) => {
                             key={column.id}
                             align={column.align}
                           >
+                            <Button onClick={() => handleShowDetails(row)}>Подробнее</Button>
                             {[...new Array(2)].map((_, idx) => (
                               <IconButton
                                 key={idx}
@@ -157,7 +151,7 @@ const Table = (props: TableProps) => {
         }}
         text={`Вы уверены, что хотите удалить ${selectedItem.name} с ID: ${selectedItem.id}?`}
       />
-      <EditDialog
+      <Dialog
         title={`Редактировать ${selectedItem.name}`}
         open={showEditDialog}
         onClose={() => setShowEditDialog(false)}
@@ -169,7 +163,7 @@ const Table = (props: TableProps) => {
               delete data[key];
             }
           }
-          selectedItem.id && onEdit(selectedItem.id, data);
+          Object.keys(data).length && selectedItem.id && onEdit(selectedItem.id, data);
         }}
       >
         {editableFields.map(({ label, props, name }) => (
@@ -182,7 +176,18 @@ const Table = (props: TableProps) => {
             {...props}
           />
         ))}
-      </EditDialog>
+      </Dialog>
+      {showDetails.open && showDetails.item && (
+        <Modal
+          title={`Подробности о ${showDetails.item.name}`}
+          open={showDetails.open}
+          handleClose={() => setShowDetails({ open: false, item: null })}
+          fields={Object.entries(showDetails.item).map(([key, val]) => ({
+            fieldTitle: key as any,
+            fieldValue: val as any,
+          }))}
+        />
+      )}
     </Paper>
   );
 };

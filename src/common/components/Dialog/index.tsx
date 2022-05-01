@@ -4,7 +4,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import {
   Button,
-  Dialog,
+  Dialog as MuiDialog,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -16,9 +16,9 @@ import {
 import { Form } from 'components/Form';
 import { InputProps } from 'components/Form/components/Input';
 
-export { EditDialog };
+export { Dialog };
 
-type EditDialogProps<T> = {
+type DialogProps<T> = {
   title: string;
   text?: string;
   children: any;
@@ -27,7 +27,7 @@ type EditDialogProps<T> = {
   handleSubmit: (data: any) => void;
 };
 
-const EditDialog = <T,>(props: EditDialogProps<T>) => {
+const Dialog = <T,>(props: DialogProps<T>) => {
   const [loading, setLoading] = useState(false);
   const { title, text, children, open, onClose, handleSubmit } = props;
 
@@ -36,7 +36,7 @@ const EditDialog = <T,>(props: EditDialogProps<T>) => {
   };
 
   return (
-    <Dialog
+    <MuiDialog
       open={open}
       onClose={onClose}
       PaperProps={{
@@ -53,25 +53,27 @@ const EditDialog = <T,>(props: EditDialogProps<T>) => {
       </DialogTitle>
       <DialogContent>
         {text && <DialogContentText>{text}</DialogContentText>}
-        <Form
-          onSubmit={onSubmit}
-          rowGap={2}
-        >
-          {children}
-          <DialogActions>
-            <Button onClick={onClose}>Отмена</Button>
-            <LoadingButton
-              variant={'contained'}
-              color={'primary'}
-              type={'submit'}
-              loading={loading}
-              loadingIndicator={'Сохраняем...'}
-            >
-              Сохранить
-            </LoadingButton>
-          </DialogActions>
-        </Form>
+        {children && (
+          <Form
+            onSubmit={onSubmit}
+            rowGap={2}
+          >
+            {children}
+            <DialogActions>
+              <Button onClick={onClose}>Отмена</Button>
+              <LoadingButton
+                variant={'contained'}
+                color={'primary'}
+                type={'submit'}
+                loading={loading}
+                loadingIndicator={'Сохраняем...'}
+              >
+                Сохранить
+              </LoadingButton>
+            </DialogActions>
+          </Form>
+        )}
       </DialogContent>
-    </Dialog>
+    </MuiDialog>
   );
 };

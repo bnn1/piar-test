@@ -33,10 +33,10 @@ class Api {
       });
 
       return { data: response.data };
-    } catch (err) {
-      console.error('Something went wrong...');
+    } catch (err: any) {
+      console.error('Something went wrong...', err);
 
-      return { error: true };
+      return { error: true, message: err.response.data.error };
     }
   }
   async patch<T = Record<string, any>>(endpoint: Endpoints, data: any, jwt = '') {

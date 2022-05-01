@@ -1,3 +1,5 @@
+import { AlertColor } from '@mui/material';
+
 import { STATIONS, USERS } from 'common/routes/api';
 import {
   CreateStation,
@@ -24,38 +26,45 @@ type Store = {
   deleteUser: (id: number, jwt: string, errorMsg?: string) => void;
   retrieveStations: (jwt: string, errorMsg?: string) => void;
   retrieveUsers: (jwt: string, errorMsg?: string) => void;
-  error: string;
-  setError: (msg: string) => void;
-  success: string;
-  setSuccess: (msg: string) => void;
+  snack: { msg: string; type: AlertColor; show: boolean };
+  setSnack: (options: Partial<Store['snack']>) => void;
 };
 
 const useStore = create<Store>((set) => ({
   stations: [],
   users: [],
-  error: '',
-  setError: (msg: string) => set({ error: msg }),
-  success: '',
-  setSuccess: (msg: string) => set({ success: msg }),
+  snack: { msg: '', type: 'success', show: false },
+  setSnack: (options) => set((state) => ({ snack: { ...state.snack, ...options } })),
   createStation: async (
     data,
     jwt,
     errorMsg = 'Не удалось создать станцию. Попробуйте позднее.'
   ) => {
-    const { error, data: station } = await fetch.post<Station>(STATIONS.CREATE.URL, data, jwt);
+    const {
+      error,
+      message,
+      data: station,
+    } = await fetch.post<Station>(STATIONS.CREATE.URL, data, jwt);
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: message || errorMsg, show: true, type: 'error' } });
     if (station)
-      set((state) => ({ stations: [...state.stations, station], success: 'Успешно!' }));
+      set((state) => ({
+        stations: [...state.stations, station],
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
+      }));
   },
   createUser: async (
     data,
     errorMsg = 'Не удалось создать пользователя. Попробуйте позднее.'
   ) => {
-    const { error, data: user } = await fetch.post<User>(USERS.CREATE.URL, data);
+    const { error, message, data: user } = await fetch.post<User>(USERS.CREATE.URL, data);
 
-    if (error) set({ error: errorMsg });
-    if (user) set((state) => ({ users: [...state.users, user], success: 'Успешно!' }));
+    if (error) set({ snack: { msg: message || errorMsg, show: true, type: 'error' } });
+    if (user)
+      set((state) => ({
+        users: [...state.users, user],
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
+      }));
   },
   updateStation: async (
     id,
@@ -69,13 +78,13 @@ const useStore = create<Store>((set) => ({
       jwt
     );
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     if (updatedStation)
       set((state) => ({
         stations: state.stations.map((station) =>
           station.id === id ? updatedStation : station
         ),
-        success: 'Успешно!',
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
       }));
   },
   updateUser: async (
@@ -90,31 +99,31 @@ const useStore = create<Store>((set) => ({
       jwt
     );
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     if (updatedUser)
       set((state) => ({
         users: state.users.map((user) => (user.id === id ? updatedUser : user)),
-        success: 'Успешно!',
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
       }));
   },
   deleteStation: async (id, jwt, errorMsg = 'Произошла ошибка. Попробуйте позднее.') => {
     const { error } = await fetch.delete(STATIONS.DELETE.URL(id), jwt);
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     else
       set((state) => ({
         stations: state.stations.filter((station) => station.id !== id),
-        success: 'Успешно!',
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
       }));
   },
   deleteUser: async (id, jwt, errorMsg = 'Произошла ошибка. Попробуйте позднее.') => {
     const { error } = await fetch.delete(USERS.DELETE.URL(id), jwt);
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     else
       set((state) => ({
         users: state.users.filter((user) => user.id !== id),
-        success: 'Успешно!',
+        snack: { msg: 'Успешно!', show: true, type: 'success' },
       }));
   },
   retrieveStations: async (
@@ -123,7 +132,7 @@ const useStore = create<Store>((set) => ({
   ) => {
     const { error, data: stations } = await fetch.get<Station[]>(STATIONS.LIST.URL, jwt);
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     if (stations) set({ stations });
 
     return stations;
@@ -134,7 +143,7 @@ const useStore = create<Store>((set) => ({
   ) => {
     const { error, data: users } = await fetch.get<User[]>(USERS.LIST.URL, jwt);
 
-    if (error) set({ error: errorMsg });
+    if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
     if (users) set({ users });
 
     return users;

@@ -36,10 +36,8 @@ function App(props: AppPropsWithLayout) {
 
   const retrieveUsers = useStore((state) => state.retrieveUsers);
   const retrieveStations = useStore((state) => state.retrieveStations);
-  const error = useStore((state) => state.error);
-  const setError = useStore((state) => state.setError);
-  const success = useStore((state) => state.success);
-  const setSuccess = useStore((state) => state.setSuccess);
+  const { show, type: snackType, msg } = useStore((state) => state.snack);
+  const setSnack = useStore((state) => state.setSnack);
 
   const getLayout =
     Component.getLayout ??
@@ -52,24 +50,14 @@ function App(props: AppPropsWithLayout) {
     ));
 
   useEffect(() => {
-    if (error) {
+    if (show) {
       const timerId = setTimeout(() => {
-        setError('');
+        setSnack({ show: false });
       }, 6000);
 
       return () => clearTimeout(timerId);
     }
-  }, [error, setError]);
-
-  useEffect(() => {
-    if (success) {
-      const timerId = setTimeout(() => {
-        setSuccess('');
-      }, 6000);
-
-      return () => clearTimeout(timerId);
-    }
-  }, [success, setSuccess]);
+  }, [show, setSnack]);
 
   useEffect(() => {
     if (session && session.jwt) {
@@ -97,10 +85,10 @@ function App(props: AppPropsWithLayout) {
         <CssBaseline />
         {getLayout(<Component {...pageProps} />)}
         <Notification
-          open={!!error || !!success}
-          handleClose={() => setError('')}
-          text={error || success}
-          status={error ? 'error' : 'success'}
+          open={show}
+          handleClose={() => setSnack({ show: false })}
+          text={msg}
+          type={snackType}
         />
       </ThemeProvider>
     </SessionProvider>

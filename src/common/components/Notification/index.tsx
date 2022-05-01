@@ -7,14 +7,14 @@ type NotificationProps = {
   handleClose: () => void;
   text: string;
   closeAfter?: number;
-  status?: AlertColor;
+  type?: AlertColor;
 };
 
 const Notification = ({
   text,
   open,
   handleClose,
-  status,
+  type,
   closeAfter = 6000,
 }: NotificationProps) => {
   return (
@@ -25,7 +25,7 @@ const Notification = ({
     >
       <Alert
         onClose={handleClose}
-        severity={status || 'success'}
+        severity={type || 'success'}
         sx={{ width: '100%' }}
       >
         {text}

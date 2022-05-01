@@ -31,6 +31,7 @@ const Input = <T,>(props: InputProps<T>) => {
     name,
     multiline,
     options,
+    type,
     ...rest
   } = props;
 
@@ -38,6 +39,7 @@ const Input = <T,>(props: InputProps<T>) => {
     return (
       <TextField
         required={required}
+        type={type}
         select={select}
         name={name}
         multiline={multiline}

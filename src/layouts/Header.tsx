@@ -1,4 +1,4 @@
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 import { MouseEvent, useState } from 'react';
 
@@ -22,7 +22,11 @@ import {
   useTheme,
 } from '@mui/material';
 
-import { Sidebar } from './Sidebar';
+import { CreateStation, CreateUser } from 'common/types/users';
+import { Dialog } from 'components/Dialog';
+import { Input } from 'components/Form/components/Input';
+import { useEditableFields } from 'hooks/useEditableFields';
+import { useStore } from 'lib/store';
 
 export { Header };
 
@@ -32,8 +36,15 @@ const addMenu = ['Пользователя', 'Станцию'];
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElAddMenu, setAnchorElAddMenu] = useState<null | HTMLElement>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newItemType, setNewItemType] = useState<null | 'user' | 'station'>(null);
+
   const theme = useTheme();
+  const { data } = useSession();
   const showBurger = useMediaQuery(theme.breakpoints.down('lg'));
+  const createUser = useStore((state) => state.createUser);
+  const createStation = useStore((state) => state.createStation);
+  const editableFields = useEditableFields(newItemType || 'user');
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -48,6 +59,22 @@ const Header = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElAddMenu(null);
+  };
+
+  const handleOpenDialog = (idx: number) => {
+    handleCloseUserMenu();
+    setShowCreateDialog(true);
+    setNewItemType(idx % 2 === 0 ? 'user' : 'station');
+  };
+
+  const handleSubmitNewItem = (item: CreateStation | CreateUser) => {
+    if (newItemType === 'user') {
+      createUser(item as CreateUser);
+    }
+    if (newItemType === 'station') {
+      data && createStation(item, data.jwt);
+    }
+    setShowCreateDialog(false);
   };
 
   return (
@@ -125,7 +152,7 @@ const Header = () => {
               {addMenu.map((item, idx) => (
                 <MenuItem
                   key={item}
-                  onClick={handleCloseUserMenu}
+                  onClick={() => handleOpenDialog(idx)}
                 >
                   <ListItemIcon>
                     {idx % 2 === 0 ? <PersonAddIcon /> : <LocalGasStationIcon />}
@@ -136,6 +163,24 @@ const Header = () => {
             </Menu>
           </Box>
           <Button onClick={() => signOut()}>Выйти</Button>
+          <Dialog
+            title={newItemType === 'user' ? 'Добавить пользователя' : 'Добавить станцию'}
+            open={showCreateDialog}
+            onClose={() => setShowCreateDialog(false)}
+            handleSubmit={(data) => {
+              console.log('NEW DATA:', data);
+              handleSubmitNewItem(data);
+            }}
+          >
+            {editableFields.map(({ label, name, props }) => (
+              <Input
+                key={label + name}
+                label={label}
+                name={name}
+                {...props}
+              />
+            ))}
+          </Dialog>
         </Toolbar>
       </Container>
     </AppBar>
