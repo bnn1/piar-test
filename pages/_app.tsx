@@ -38,6 +38,7 @@ function App(props: AppPropsWithLayout) {
   const retrieveStations = useStore((state) => state.retrieveStations);
   const { show, type: snackType, msg } = useStore((state) => state.snack);
   const setSnack = useStore((state) => state.setSnack);
+  const setMe = useStore((state) => state.setMe);
 
   const getLayout =
     Component.getLayout ??
@@ -61,14 +62,17 @@ function App(props: AppPropsWithLayout) {
 
   useEffect(() => {
     if (session && session.jwt) {
-      console.log(session);
-
       const { jwt } = session;
 
       retrieveStations(jwt);
       retrieveUsers(jwt);
     }
   }, [session, retrieveStations, retrieveUsers]);
+
+  useEffect(() => {
+    console.log('SESSION DATA', session);
+    setMe(session.user.id);
+  }, [session, setMe]);
 
   return (
     <SessionProvider

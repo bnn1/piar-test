@@ -17,8 +17,6 @@ const Main = ({ children, ...rest }: MainProps) => {
   const showSidebar = useMediaQuery(theme.breakpoints.up('lg'));
   const session = useSession();
 
-  console.log('SESSION', session);
-
   return (
     <Container
       maxWidth={'xl'}

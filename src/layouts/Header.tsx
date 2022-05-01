@@ -185,7 +185,6 @@ const Header = () => {
             open={showCreateDialog}
             onClose={() => setShowCreateDialog(false)}
             handleSubmit={(data) => {
-              console.log('NEW DATA:', data);
               handleSubmitNewItem(data);
             }}
           >

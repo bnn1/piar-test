@@ -57,7 +57,7 @@ function UsersPage() {
           </Typography>
         </Stack>
         <Table
-          tableName={'Пользователи'}
+          tableName={'Станции'}
           onDelete={onDelete(session.data.jwt, deleteStation)}
           onEdit={onEdit(session.data.jwt, updateStation)}
           columns={columns as TableColumn[]}

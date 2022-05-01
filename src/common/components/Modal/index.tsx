@@ -33,8 +33,6 @@ const defaultStyle: SxProps = {
 };
 
 const Modal = ({ open, handleClose, title, fields, ...rest }: ModalProps) => {
-  console.log('FIELDS:', fields);
-
   return (
     <MuiModal
       open={open}

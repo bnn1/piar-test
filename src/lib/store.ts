@@ -18,6 +18,8 @@ export { useStore };
 type Store = {
   stations: Station[];
   users: User[];
+  me: { profileId: number | null };
+  setMe: (profileId: number) => void;
   createStation: (station: CreateStation, jwt: string, errorMsg?: string) => void;
   createUser: (user: CreateUser, errorMsg?: string) => void;
   updateStation: (id: number, station: UpdateStation, jwt: string, errorMsg?: string) => void;
@@ -30,10 +32,12 @@ type Store = {
   setSnack: (options: Partial<Store['snack']>) => void;
 };
 
-const useStore = create<Store>((set) => ({
+const useStore = create<Store>((set, get) => ({
   stations: [],
   users: [],
   snack: { msg: '', type: 'success', show: false },
+  me: { profileId: null },
+  setMe: (profileId) => set({ me: { profileId } }),
   setSnack: (options) => set((state) => ({ snack: { ...state.snack, ...options } })),
   createStation: async (
     data,
@@ -117,6 +121,14 @@ const useStore = create<Store>((set) => ({
       }));
   },
   deleteUser: async (id, jwt, errorMsg = 'Произошла ошибка. Попробуйте позднее.') => {
+    const { profileId } = get().me;
+
+    console.log('ID VS MY PROFILE', { id, profileId });
+    if (profileId === id)
+      return set({
+        snack: { msg: 'Нельзя удалить текущего пользователя', show: true, type: 'error' },
+      });
+
     const { error } = await fetch.delete(USERS.DELETE.URL(id), jwt);
 
     if (error) set({ snack: { msg: errorMsg, show: true, type: 'error' } });
