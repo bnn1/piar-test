@@ -1,4 +1,4 @@
-import type { NextPage, NextPageContext } from 'next';
+import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';

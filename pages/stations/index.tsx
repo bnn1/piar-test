@@ -3,7 +3,7 @@ import { getSession, useSession } from 'next-auth/react';
 
 import { Stack, Typography } from '@mui/material';
 
-import { UpdateStation, UpdateUser } from 'common/types/users';
+import { UpdateStation } from 'common/types/users';
 import { Table } from 'components/Table';
 import { TableColumn, TableRow } from 'components/Table/table.types';
 import { useStore } from 'lib/store';

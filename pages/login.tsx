@@ -1,17 +1,14 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { getSession, signIn, useSession } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 
-import { FormEvent, ReactElement, useEffect, useRef, useState } from 'react';
-import { SubmitHandler } from 'react-hook-form';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 
-import SaveIcon from '@mui/icons-material/Save';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Container, Slide, Stack, Typography } from '@mui/material';
+import { Box, Button, Slide, Stack, Typography } from '@mui/material';
 
 import { PAGE_APP_HOME, PAGE_APP_LOGIN, PAGE_APP_REGISTER } from 'common/routes/pages';
-import { SignInNoRedirect } from 'common/types/auth';
 import { Form } from 'components/Form';
 import { Input } from 'components/Form/components/Input';
 import { Main } from 'layouts/Main';

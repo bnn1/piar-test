@@ -1,5 +1,4 @@
-import { Session } from 'next-auth';
-import { SessionContextValue, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 import { ReactNode } from 'react';
 
@@ -16,20 +15,23 @@ type MainProps = ContainerProps & {
 const Main = ({ children, ...rest }: MainProps) => {
   const theme = useTheme();
   const showSidebar = useMediaQuery(theme.breakpoints.up('lg'));
+  const session = useSession();
+
+  console.log('SESSION', session);
 
   return (
     <Container
-      maxWidth={'lg'}
+      maxWidth={'xl'}
       component={'main'}
       {...rest}
       sx={{
         minHeight: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-        pl: { lg: 'calc(100vw - 80%)' },
+        pl: { lg: session.data ? 'calc(100vw - 80%)' : 0 },
         ...rest.sx,
       }}
     >
       {children}
-      {showSidebar && <Sidebar />}
+      {session.data && showSidebar && <Sidebar />}
     </Container>
   );
 };

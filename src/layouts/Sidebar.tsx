@@ -41,7 +41,7 @@ const Sidebar = () => {
           { label: 'Главная', href: PAGE_APP_HOME, icon: <HomeIcon /> },
           { label: 'Пользователи', href: PAGE_APP_USERS, icon: <GroupIcon /> },
           { label: 'Станции', href: PAGE_APP_STATIONS, icon: <LocalGasStationIcon /> },
-        ].map(({ label, icon, href }, index) => (
+        ].map(({ label, icon, href }) => (
           <ListItem key={label}>
             <Link
               href={href}

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Endpoints, USERS } from 'common/routes/api';
+import { Endpoints } from 'common/routes/api';
 
 export { fetch };
 

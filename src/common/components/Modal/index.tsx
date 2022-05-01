@@ -1,4 +1,4 @@
-import { Box, Modal as MuiModal, Stack, SxProps, Typography } from '@mui/material';
+import { Modal as MuiModal, Stack, SxProps, Typography } from '@mui/material';
 
 export { Modal };
 
@@ -25,11 +25,11 @@ const defaultStyle: SxProps = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 1,
-  maxWidth: 400,
+  maxWidth: 768,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  p: 4,
+  p: 12,
 };
 
 const Modal = ({ open, handleClose, title, fields, ...rest }: ModalProps) => {
@@ -53,7 +53,7 @@ const Modal = ({ open, handleClose, title, fields, ...rest }: ModalProps) => {
         >
           {title}
         </Typography>
-        <Stack>
+        <Stack rowGap={6}>
           {fields.map(({ fieldTitle, fieldValue }) => (
             <Stack
               key={fieldTitle + fieldValue}
@@ -62,7 +62,7 @@ const Modal = ({ open, handleClose, title, fields, ...rest }: ModalProps) => {
               justifyContent={'space-between'}
             >
               <Typography>{mapping[fieldTitle]}</Typography>
-              <Typography>{fieldValue}</Typography>
+              <Typography textAlign={'end'}>{fieldValue}</Typography>
             </Stack>
           ))}
         </Stack>

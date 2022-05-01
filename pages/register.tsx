@@ -1,14 +1,14 @@
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { getSession, signIn } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 
 import { ReactElement, useEffect, useRef, useState } from 'react';
 
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Slide, Stack, Typography } from '@mui/material';
 
-import { users } from 'common/routes/api';
+import { USERS } from 'common/routes/api';
 import { PAGE_APP_HOME, PAGE_APP_LOGIN } from 'common/routes/pages';
 import { Form } from 'components/Form';
 import { Input } from 'components/Form/components/Input';
@@ -26,8 +26,9 @@ function RegisterPage() {
   const handleSubmit = (data: any) => {
     setLoading(true);
     fetch
-      .post(users.create.url, data)
-      .then(() => {
+      .post(USERS.CREATE.URL, data)
+      .then((res) => {
+        if (res.error) throw new Error();
         router.push(PAGE_APP_LOGIN + '?registered=true');
       })
       .catch(() => {

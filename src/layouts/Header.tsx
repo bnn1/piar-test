@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 
 import { MouseEvent, useState } from 'react';
@@ -12,6 +13,7 @@ import {
   Button,
   Container,
   IconButton,
+  Link as MuiLink,
   ListItemIcon,
   Menu,
   MenuItem,
@@ -22,6 +24,7 @@ import {
   useTheme,
 } from '@mui/material';
 
+import { PAGE_APP_HOME, PAGE_APP_STATIONS, PAGE_APP_USERS } from 'common/routes/pages';
 import { CreateStation, CreateUser } from 'common/types/users';
 import { Dialog } from 'components/Dialog';
 import { Input } from 'components/Form/components/Input';
@@ -30,7 +33,6 @@ import { useStore } from 'lib/store';
 
 export { Header };
 
-const pages = ['Пользователи', 'Станции'];
 const addMenu = ['Пользователя', 'Станцию'];
 
 const Header = () => {
@@ -111,12 +113,27 @@ const Header = () => {
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
               >
-                {pages.map((page) => (
+                {[
+                  { label: 'Главная', href: PAGE_APP_HOME },
+                  { label: 'Пользователи', href: PAGE_APP_USERS },
+                  { label: 'Станции', href: PAGE_APP_STATIONS },
+                ].map(({ label, href }) => (
                   <MenuItem
-                    key={page}
+                    key={label + href}
                     onClick={handleCloseNavMenu}
                   >
-                    <Typography textAlign="center">{page}</Typography>
+                    <Link
+                      href={href}
+                      passHref
+                    >
+                      <MuiLink
+                        textAlign="center"
+                        underline={'none'}
+                        color={'common.white'}
+                      >
+                        {label}
+                      </MuiLink>
+                    </Link>
                   </MenuItem>
                 ))}
               </Menu>

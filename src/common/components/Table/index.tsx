@@ -1,35 +1,39 @@
-import { useEffect, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
-  Box,
   Button,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Table as MuiTable,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Typography,
+  TableRow as MuiTableRow,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 
-import { CreateStation, CreateUser, EditableFields, Station, User } from 'common/types/users';
+import { CreateStation, CreateUser, Station, User } from 'common/types/users';
 import { ConfirmationDialog } from 'components/ConfirmationDialog';
 import { Dialog } from 'components/Dialog';
 import { Input } from 'components/Form/components/Input';
 import { Modal } from 'components/Modal';
 import { useEditableFields } from 'hooks/useEditableFields';
 
-import { TableProps } from './table.types';
+import { TableProps, TableRow } from './table.types';
 
 export { Table };
 
 const Table = (props: TableProps) => {
   const { columns, rows, tableName, onDelete, onEdit, slice = rows.length } = props;
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDetails, setShowDetails] = useState<{
@@ -46,27 +50,72 @@ const Table = (props: TableProps) => {
     item: null,
   });
 
+  const theme = useTheme();
+  const expandedActions = useMediaQuery(theme.breakpoints.up('md'));
   const editableFields = useEditableFields(tableName === 'Пользователи' ? 'user' : 'station');
 
-  const selectUser = (item: typeof selectedItem, cb: any) => {
-    setSelectedItem(item);
-    cb();
+  const resetSelectedItem = () => {
+    setShowEditDialog(false);
+    setShowDeleteDialog(false);
+    setShowDetails({ open: false, item: null });
+    setSelectedItem({ name: '', id: null, item: null });
+  };
+
+  const handleExpandActions = (event: MouseEvent<HTMLElement>, row: TableRow) => {
+    setSelectedItem({
+      id: Number(row.id),
+      name: tableName === 'Пользователи' ? 'пользователя' : 'станцию',
+      item: row,
+    });
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCollapseActions = () => {
+    setAnchorEl(null);
   };
 
   const handleShowDetails = (item: User | Station) => {
-    console.log('DETAILS:', item);
     setShowDetails({ open: true, item });
+  };
+
+  const handleIconClick = (row: TableRow, action: 'details' | 'edit' | 'delete') => {
+    handleCollapseActions();
+
+    switch (action) {
+      case 'details': {
+        handleShowDetails(row);
+        break;
+      }
+
+      case 'edit': {
+        setShowEditDialog(true);
+        break;
+      }
+
+      case 'delete': {
+        setShowDeleteDialog(true);
+        break;
+      }
+    }
+
+    if (!selectedItem.item) {
+      setSelectedItem({
+        id: Number(row.id),
+        name: tableName === 'Пользователи' ? 'пользователя' : 'станцию',
+        item: row,
+      });
+    }
   };
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: { xs: 440, lg: 'unset' } }}>
+      <TableContainer>
         <MuiTable
           stickyHeader
           aria-label="sticky table"
         >
           <TableHead>
-            <TableRow>
+            <MuiTableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
@@ -76,12 +125,12 @@ const Table = (props: TableProps) => {
                   {column.label}
                 </TableCell>
               ))}
-            </TableRow>
+            </MuiTableRow>
           </TableHead>
           <TableBody>
             {rows.slice(0, slice).map((row) => {
               return (
-                <TableRow
+                <MuiTableRow
                   hover
                   role="checkbox"
                   tabIndex={-1}
@@ -97,30 +146,68 @@ const Table = (props: TableProps) => {
                             key={column.id}
                             align={column.align}
                           >
-                            <Button onClick={() => handleShowDetails(row)}>Подробнее</Button>
-                            {[...new Array(2)].map((_, idx) => (
-                              <IconButton
-                                key={idx}
-                                onClick={() =>
-                                  selectUser(
+                            {expandedActions ? (
+                              [
+                                { label: 'Подробнее', action: 'details' as const },
+                                { icon: <EditIcon />, action: 'edit' as const },
+                                {
+                                  icon: <DeleteIcon />,
+                                  action: 'delete' as const,
+                                },
+                              ].map(({ label, icon, action }, idx) =>
+                                label ? (
+                                  <Button onClick={() => handleIconClick(row, action)}>
+                                    {label}
+                                  </Button>
+                                ) : (
+                                  <IconButton
+                                    key={idx}
+                                    onClick={() => handleIconClick(row, action)}
+                                  >
+                                    {icon}
+                                  </IconButton>
+                                )
+                              )
+                            ) : (
+                              <>
+                                <IconButton onClick={(e) => handleExpandActions(e, row)}>
+                                  <MoreVertIcon />
+                                </IconButton>
+                                <Menu
+                                  id="menu-appbar"
+                                  keepMounted
+                                  anchorEl={anchorEl}
+                                  open={!!anchorEl}
+                                  onClose={handleCollapseActions}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                  }}
+                                >
+                                  {[
                                     {
-                                      id: Number(row.id),
-                                      name:
-                                        tableName === 'Пользователи'
-                                          ? 'пользователя'
-                                          : 'станцию',
-                                      item: row,
+                                      label: 'Подробнее',
+                                      action: 'details' as const,
                                     },
-                                    () =>
-                                      idx % 2 === 0
-                                        ? setShowEditDialog(true)
-                                        : setShowDeleteDialog(true)
-                                  )
-                                }
-                              >
-                                {idx % 2 === 0 ? <EditIcon /> : <DeleteIcon />}
-                              </IconButton>
-                            ))}
+                                    {
+                                      label: 'Редактировать',
+                                      action: 'edit' as const,
+                                    },
+                                    {
+                                      label: 'Удалить',
+                                      action: 'delete' as const,
+                                    },
+                                  ].map(({ label, action }) => (
+                                    <MenuItem
+                                      key={label + action}
+                                      onClick={() => handleIconClick(row, action)}
+                                    >
+                                      {label}
+                                    </MenuItem>
+                                  ))}
+                                </Menu>
+                              </>
+                            )}
                           </TableCell>
                         );
                       }
@@ -135,7 +222,7 @@ const Table = (props: TableProps) => {
                       );
                     }
                   })}
-                </TableRow>
+                </MuiTableRow>
               );
             })}
           </TableBody>
@@ -144,9 +231,9 @@ const Table = (props: TableProps) => {
       <ConfirmationDialog
         title={`Удалить ${selectedItem.name}?`}
         open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
+        onClose={() => resetSelectedItem()}
         onConfirm={() => {
-          setShowDeleteDialog(false);
+          resetSelectedItem();
           selectedItem.id && onDelete(selectedItem.id);
         }}
         text={`Вы уверены, что хотите удалить ${selectedItem.name} с ID: ${selectedItem.id}?`}
@@ -154,9 +241,9 @@ const Table = (props: TableProps) => {
       <Dialog
         title={`Редактировать ${selectedItem.name}`}
         open={showEditDialog}
-        onClose={() => setShowEditDialog(false)}
+        onClose={() => resetSelectedItem()}
         handleSubmit={(data) => {
-          setShowEditDialog(false);
+          resetSelectedItem();
           for (const key in data) {
             // @ts-ignore
             if (!data[key] || data[key] === selectedItem.item[key]) {

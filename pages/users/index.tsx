@@ -31,7 +31,7 @@ function UsersPage() {
     return (id: number, updatedItem: UpdateUser) => cb(id, updatedItem, jwt);
   };
 
-  if (!session.data) return null;
+  if (!session.data || !session.data.jwt) return null;
 
   return (
     <Stack

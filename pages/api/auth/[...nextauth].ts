@@ -1,5 +1,4 @@
 import NextAuth from 'next-auth';
-import { getToken } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 
 import { USERS } from 'common/routes/api';
@@ -18,15 +17,21 @@ export default NextAuth({
         const { login, password } = creds || {};
 
         try {
-          const { data } = await fetch.post(USERS.AUTH.URL, { login, password });
-          const { data: user } = await fetch.get<User>(USERS.ME.URL, {
-            headers: { 'user-jwt': data.user_jwt },
+          const { data } = await fetch.post<{ user_jwt: string }>(USERS.AUTH.URL, {
+            login,
+            password,
           });
 
-          return { ...user, jwt: data.user_jwt };
+          if (data && data.user_jwt) {
+            const { data: user } = await fetch.get<User>(USERS.ME.URL, data.user_jwt);
+
+            return { ...user, jwt: data.user_jwt };
+          }
         } catch (err) {
           return null;
         }
+
+        return null;
       },
     }),
   ],

@@ -1,6 +1,3 @@
-import { ReactElement, useState } from 'react';
-import { SubmitHandler } from 'react-hook-form';
-
 import { LoadingButton } from '@mui/lab';
 import {
   Button,
@@ -9,16 +6,14 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
   Typography,
 } from '@mui/material';
 
 import { Form } from 'components/Form';
-import { InputProps } from 'components/Form/components/Input';
 
 export { Dialog };
 
-type DialogProps<T> = {
+type DialogProps = {
   title: string;
   text?: string;
   children: any;
@@ -27,8 +22,7 @@ type DialogProps<T> = {
   handleSubmit: (data: any) => void;
 };
 
-const Dialog = <T,>(props: DialogProps<T>) => {
-  const [loading, setLoading] = useState(false);
+const Dialog = (props: DialogProps) => {
   const { title, text, children, open, onClose, handleSubmit } = props;
 
   const onSubmit = (data: any) => {
@@ -65,8 +59,6 @@ const Dialog = <T,>(props: DialogProps<T>) => {
                 variant={'contained'}
                 color={'primary'}
                 type={'submit'}
-                loading={loading}
-                loadingIndicator={'Сохраняем...'}
               >
                 Сохранить
               </LoadingButton>
