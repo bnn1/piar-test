@@ -71,7 +71,9 @@ function App(props: AppPropsWithLayout) {
 
   useEffect(() => {
     console.log('SESSION DATA', session);
-    setMe(session.user.id);
+    if (session && session.user) {
+      setMe(session.user.id);
+    }
   }, [session, setMe]);
 
   return (
