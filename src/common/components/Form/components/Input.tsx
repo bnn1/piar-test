@@ -21,7 +21,18 @@ export type InputProps<T> = TextFieldProps['InputProps'] &
   };
 
 const Input = <T,>(props: InputProps<T>) => {
-  const { label, required, select, children, error, register, name, options, ...rest } = props;
+  const {
+    label,
+    required,
+    select,
+    children,
+    error,
+    register,
+    name,
+    multiline,
+    options,
+    ...rest
+  } = props;
 
   if (name)
     return (
@@ -29,6 +40,7 @@ const Input = <T,>(props: InputProps<T>) => {
         required={required}
         select={select}
         name={name}
+        multiline={multiline}
         InputProps={{ ...rest, ...register?.(name, options), notched: false }}
         label={label}
         error={!!error}

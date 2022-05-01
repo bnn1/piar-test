@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,24 +13,57 @@ import {
   TableRow,
 } from '@mui/material';
 
+import { CreateStation, CreateUser, EditableFields, Station, User } from 'common/types/users';
 import { ConfirmationDialog } from 'components/ConfirmationDialog';
+import { EditDialog } from 'components/EditDialog';
+import { Input } from 'components/Form/components/Input';
 
 import { TableProps } from './table.types';
 
 export { Table };
 
-const Table = ({ columns, rows, onDelete, slice = rows.length }: TableProps) => {
-  const [showDialog, setShowDialog] = useState(false);
-  const [userId, setUserId] = useState<number | string | null>(null);
-  const selectUser = (id: number | string, cb: any) => {
-    setUserId(id);
+type EditFields = {
+  name: EditableFields;
+  label: string;
+  props?: { multiline?: boolean };
+};
+
+const Table = (props: TableProps) => {
+  const { columns, rows, tableName, onDelete, onEdit, slice = rows.length } = props;
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [editableFields, setEditableFields] = useState<EditFields[]>([]);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    name: string;
+    id: number | null;
+    item: CreateUser | CreateStation | null;
+  }>({
+    name: '',
+    id: null,
+    item: null,
+  });
+  const selectUser = (item: typeof selectedItem, cb: any) => {
+    setSelectedItem(item);
     cb();
   };
 
-  const onConfirm = () => {
-    onDelete(userId as number);
-    setUserId(null);
-  };
+  useEffect(() => {
+    if (tableName === 'Пользователи') {
+      setEditableFields([
+        { name: 'name', label: 'Имя' },
+        { name: 'login', label: 'Логин' },
+        { name: 'password', label: 'Пароль' },
+        { name: 'comment', label: 'Комментарий', props: { multiline: true } },
+      ]);
+    }
+    if (tableName === 'Станции') {
+      setEditableFields([
+        { name: 'name', label: 'Имя' },
+        { name: 'comment', label: 'Комментарий', props: { multiline: true } },
+      ]);
+    }
+  }, [tableName]);
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -45,7 +78,7 @@ const Table = ({ columns, rows, onDelete, slice = rows.length }: TableProps) => 
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  sx={{ maxWidth: 100, ...column.sx }}
+                  sx={{ maxWidth: 100, verticalAlign: 'bottom', px: 0, ...column.sx }}
                 >
                   {column.label}
                 </TableCell>
@@ -54,8 +87,6 @@ const Table = ({ columns, rows, onDelete, slice = rows.length }: TableProps) => 
           </TableHead>
           <TableBody>
             {rows.slice(0, slice).map((row) => {
-              console.log('ROW:', row);
-
               return (
                 <TableRow
                   hover
@@ -73,14 +104,29 @@ const Table = ({ columns, rows, onDelete, slice = rows.length }: TableProps) => 
                             key={column.id}
                             align={column.align}
                           >
-                            <IconButton>
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => selectUser(row.id, () => setShowDialog(true))}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                            {[...new Array(2)].map((_, idx) => (
+                              <IconButton
+                                key={idx}
+                                onClick={() =>
+                                  selectUser(
+                                    {
+                                      id: Number(row.id),
+                                      name:
+                                        tableName === 'Пользователи'
+                                          ? 'пользователя'
+                                          : 'станцию',
+                                      item: row,
+                                    },
+                                    () =>
+                                      idx % 2 === 0
+                                        ? setShowEditDialog(true)
+                                        : setShowDeleteDialog(true)
+                                  )
+                                }
+                              >
+                                {idx % 2 === 0 ? <EditIcon /> : <DeleteIcon />}
+                              </IconButton>
+                            ))}
                           </TableCell>
                         );
                       }
@@ -102,12 +148,41 @@ const Table = ({ columns, rows, onDelete, slice = rows.length }: TableProps) => 
         </MuiTable>
       </TableContainer>
       <ConfirmationDialog
-        title={'Удалить пользователя?'}
-        open={showDialog}
-        onClose={() => setShowDialog(false)}
-        onConfirm={() => onDelete(userId as number)}
-        text={`Вы уверены, что хотите удалить пользователя с ID: ${userId}?`}
+        title={`Удалить ${selectedItem.name}?`}
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={() => {
+          setShowDeleteDialog(false);
+          selectedItem.id && onDelete(selectedItem.id);
+        }}
+        text={`Вы уверены, что хотите удалить ${selectedItem.name} с ID: ${selectedItem.id}?`}
       />
+      <EditDialog
+        title={`Редактировать ${selectedItem.name}`}
+        open={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        handleSubmit={(data) => {
+          setShowEditDialog(false);
+          for (const key in data) {
+            // @ts-ignore
+            if (!data[key] || data[key] === selectedItem.item[key]) {
+              delete data[key];
+            }
+          }
+          selectedItem.id && onEdit(selectedItem.id, data);
+        }}
+      >
+        {editableFields.map(({ label, props, name }) => (
+          <Input
+            label={label}
+            key={name}
+            name={name}
+            // @ts-ignore
+            defaultValue={selectedItem.item?.[name]}
+            {...props}
+          />
+        ))}
+      </EditDialog>
     </Paper>
   );
 };

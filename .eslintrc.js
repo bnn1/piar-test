@@ -14,12 +14,12 @@ module.exports = {
     'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
     'plugin:sonarjs/recommended',
-    'plugin:security/recommended',
     'next/core-web-vitals',
     'plugin:prettier/recommended',
   ],
   rules: {
     'react/display-name': 0,
+    '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/no-unused-vars': 0,
     '@typescript-eslint/no-var-requires': 0,
     '@typescript-eslint/padding-line-between-statements': [
@@ -67,6 +67,7 @@ module.exports = {
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
     ],
     'sonarjs/no-duplicate-string': [2, 6],
+    'sonarjs/cognitive-complexity': [2, 30],
   },
   overrides: [
     // Only uses Testing Library lint rules in test files

@@ -1,4 +1,12 @@
-export type { CreateStation, CreateUser, Station, UpdateStation, UpdateUser, User };
+export type {
+  CreateStation,
+  CreateUser,
+  EditableFields,
+  Station,
+  UpdateStation,
+  UpdateUser,
+  User,
+};
 
 type User = {
   id: number;
@@ -29,6 +37,8 @@ type CreateStation = {
   name: string;
   comment?: string;
 };
+
+type EditableFields = keyof CreateUser | keyof CreateStation;
 
 type UpdateStation = Partial<CreateStation>;
 

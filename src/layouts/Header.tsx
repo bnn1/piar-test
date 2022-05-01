@@ -3,13 +3,16 @@ import { signOut } from 'next-auth/react';
 import { MouseEvent, useState } from 'react';
 
 import AddIcon from '@mui/icons-material/Add';
+import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import {
   AppBar,
   Box,
   Button,
   Container,
   IconButton,
+  ListItemIcon,
   Menu,
   MenuItem,
   Toolbar,
@@ -19,16 +22,18 @@ import {
   useTheme,
 } from '@mui/material';
 
+import { Sidebar } from './Sidebar';
+
 export { Header };
 
 const pages = ['Пользователи', 'Станции'];
-const settings = ['Пользователя', 'Станцию'];
+const addMenu = ['Пользователя', 'Станцию'];
 
 const Header = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElAddMenu, setAnchorElAddMenu] = useState<null | HTMLElement>(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const showBurger = useMediaQuery(theme.breakpoints.down('lg'));
 
   const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -48,17 +53,11 @@ const Header = () => {
   return (
     <AppBar position="sticky">
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
-          >
-            LOGO
-          </Typography>
-
-          {isMobile && (
+        <Toolbar
+          disableGutters
+          sx={{ justifyContent: 'flex-end' }}
+        >
+          {showBurger && (
             <Box sx={{ flexGrow: 1, display: 'flex' }}>
               <IconButton
                 size="large"
@@ -84,9 +83,6 @@ const Header = () => {
                 }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' },
-                }}
               >
                 {pages.map((page) => (
                   <MenuItem
@@ -101,7 +97,7 @@ const Header = () => {
           )}
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Добавить пользователя/станцию">
               <IconButton
                 onClick={handleOpenAddMenu}
                 sx={{ p: 4, borderRadius: 0 }}
@@ -126,12 +122,15 @@ const Header = () => {
               open={Boolean(anchorElAddMenu)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
+              {addMenu.map((item, idx) => (
                 <MenuItem
-                  key={setting}
+                  key={item}
                   onClick={handleCloseUserMenu}
                 >
-                  <Typography textAlign="center">{setting}</Typography>
+                  <ListItemIcon>
+                    {idx % 2 === 0 ? <PersonAddIcon /> : <LocalGasStationIcon />}
+                  </ListItemIcon>
+                  <Typography textAlign="center">{item}</Typography>
                 </MenuItem>
               ))}
             </Menu>

@@ -41,7 +41,7 @@ const ConfirmationDialog = ({
           onClick={onConfirm}
           autoFocus
         >
-          Удалить пользователя
+          Удалить
         </Button>
       </DialogActions>
     </Dialog>

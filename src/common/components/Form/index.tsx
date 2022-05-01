@@ -20,7 +20,7 @@ type FormProps<T> = Omit<StackProps, 'children'> &
     defaultValues?: DefaultValues<T>;
     onSubmit: SubmitHandler<T>;
     children:
-      | ReactElement<InputProps<T>>[]
+      | ReactElement<InputProps<T> | any>[]
       | (({ register }: Pick<UseFormReturn<T>, 'register'>) => ReactNode);
   };
 
@@ -41,8 +41,6 @@ const Form = <T,>({ children, onSubmit, defaultValues, ...rest }: FormProps<T>) 
         ? children({ register })
         : Children.map(children, (child: ReactElement<InputProps<T>>) => {
             const { type, props } = child;
-
-            console.log('CHILD:', child);
 
             return props?.name
               ? createElement(type, {
