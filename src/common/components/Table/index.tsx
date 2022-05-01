@@ -58,7 +58,7 @@ const Table = (props: TableProps) => {
     setShowEditDialog(false);
     setShowDeleteDialog(false);
     setShowDetails({ open: false, item: null });
-    setSelectedItem({ name: '', id: null, item: null });
+    setSelectedItem({ ...selectedItem, item: null });
   };
 
   const handleExpandActions = (event: MouseEvent<HTMLElement>, row: TableRow) => {
